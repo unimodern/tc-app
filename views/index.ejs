@@ -1,0 +1,95 @@
+<form id="convertform" action="/" method="post">
+    <div class="form-group field-convertform-text required">
+
+        <input type="hidden" id="convertform-text" class="form-control" name="ConvertForm[text]">
+
+        <p class="help-block help-block-error"></p>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <p class="subtitle fancy"><span>Enter Text Below</span></p>
+            <div class="editable">
+                <div id="to_convert" class="sub-editable to-convert" contenteditable="true"><%=model.text %></div>
+            </div>
+        </div>
+    </div>
+    <div class="row sub-editable">
+        <div class="col-lg-12">
+
+            <div class="btn-group float-end btn-group-xs to-convert-toolbar" role="group">
+                <button class="btn btn-light clipboard" type="button" data-clipboard-target="#to_convert">Copy to
+                    clipboard</button>
+                <button class="btn btn-light find-btn" type="button"
+                    data-find-target="#to_convert">Find/Replace</button>
+                <button class="btn btn-light clear-btn" type="button" data-target="#to_convert">Clear</button>
+            </div>
+
+        </div>
+    </div>
+    <div class="row main-btns">
+        <div class="col-lg-3 col-md-2 col-sm-1"></div>
+        <div class="col-lg-6 col-lg-offset-3 col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1">
+            <div class="btn-group btn-group-lg">
+                <button type="button" class="btn btn-default-outline settings-btn">Setting</button>
+                <button type="submit" class="btn btn-primary-outline convert-button"
+                    name="convert-button">Convert</button> </div>
+        </div>
+    </div>
+
+    <div class="form-group field-convertform-conversions">
+        <label class="control-label">Conversions</label>
+        <div>
+            <input type="hidden" name="ConvertForm[conversions]" value="">
+            <div id="convertform-conversions">
+                <% site.conversions.forEach((conv) => { %>
+                <label class="checkbox-inline"><input type="checkbox" name="ConvertForm[conversions][]"
+                        value="<%=conv.conversion %>"
+                        <%=(model.conversions.includes(conv.conversion) ? "checked":"") %>>
+                    <%=conv.name %></label>
+                <% }) %>
+                <p class="help-block help-block-error"></p>
+            </div>
+
+        </div>
+
+</form>
+
+<% if (converted) { %>
+<div>
+    <% model.results.forEach((result, i) => {
+        const name = site.conversions.filter(c => c.conversion == result.conversion)[0].name;
+    %>
+    <div id="dotcase" class="results row">
+        <div class="col-lg-12">
+            <h3 class="subtitle fancy"><span><%=name %></span></h3>
+            <div class="editable">
+                <div id="result-<%=(result.conversion) %>" class="sub-editable" contenteditable="true"><%=(result.result) %></div>
+            </div>
+        </div>
+    </div>
+    <div class="row sub-editable">
+        <div class="col-lg-12">
+            <div>
+                <div class="float-end btn-group" role="group" aria-label="Basic example">
+                    <button class="btn btn-light btn-xs clipboard pull-right align-top" type="button"
+                        data-clipboard-target="#result-dotcase">Copy to clipboard</button>
+                    <button class="btn btn-light btn-xs find-btn pull-right align-top" type="button"
+                        data-find-target="#result-dotcase">Find/Replace</button>
+                </div>
+                <div>
+                    <ul class="help-block stats">
+                        <li>number of letters with space: <%=result.stats.charactersWithSpace %></li>
+                        <li>number of letters without space: <%=result.stats.charactersWithoutSpace %></li>
+                    </ul>
+                    <ul class="help-block stats">
+                        <li>number of periods: <%=result.stats.Periods %></li>
+                        <li>number of commas: <%=result.stats.Commas %></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <% }); %>
+</div>
+<% } %>
