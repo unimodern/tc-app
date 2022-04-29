@@ -47,7 +47,7 @@ class Convert {
         data = func.apply(data);
 
         func.name = 'apply word case sensitive';
-        func.options['set/clear'] = 'clear';
+        func.options['set'] = false;
         func.options['words'] = this.titlecase_keep_exceptions;
         func.inputs = data;
         data = func.apply(data);
@@ -57,20 +57,20 @@ class Convert {
         data = func.apply(data);
 
         func.name = 'apply word';
-        func.options['set/clear'] = 'clear';
+        func.options['set'] = false;
         func.options['words'] = this.titlecase_exceptions;
         func.inputs = data;
         data = func.apply(data);
 
 
         func.name = 'apply element';
-        func.options['set/clear'] = 'set';
+        func.options['set'] = true;
         func.options['positions'] = ['first', 'last'];
         func.inputs = data;
         data = func.apply(data);
 
         func.name = 'apply word case sensitive';
-        func.options['set/clear'] = 'clear';
+        func.options['set'] = false;
         func.options['words'] = this.titlecase_keep_exceptions;
         func.inputs = data;
         data = func.apply(data);
@@ -115,7 +115,7 @@ class Convert {
         data = func.apply(data);
 
         func.name = 'apply word case sensitive';
-        func.options['set/clear'] = 'clear';
+        func.options['set'] = false;
         func.options['words'] = this.titlecase_keep_exceptions;
         func.inputs = data;
         data = func.apply(data);
@@ -125,20 +125,20 @@ class Convert {
         data = func.apply(data);
 
         func.name = 'apply word';
-        func.options['set/clear'] = 'clear';
+        func.options['set'] = false;
         func.options['words'] = this.aptitlecase_exceptions;
         func.inputs = data;
         data = func.apply(data);
 
 
         func.name = 'apply element';
-        func.options['set/clear'] = 'set';
+        func.options['set'] = true;
         func.options['positions'] = ['first', 'last'];
         func.inputs = data;
         data = func.apply(data);
 
         func.name = 'apply word case sensitive';
-        func.options['set/clear'] = 'clear';
+        func.options['set'] = false;
         func.options['words'] = this.titlecase_keep_exceptions;
         func.inputs = data;
         data = func.apply(data);
@@ -213,7 +213,7 @@ class Convert {
         console.log(data)
         
         func.name = 'apply word case sensitive';
-        func.options['set/clear'] = 'clear';
+        func.options['set'] = false;
         func.options['words'] = this.titlecase_keep_exceptions;
         func.inputs = [data];
         data = func.apply(data);
@@ -229,7 +229,7 @@ class Convert {
         data = func.apply(data);
         
         func.name = 'apply word';
-        func.options['set/clear'] = 'set';
+        func.options['set'] = true;
         func.options['words'] = ['i'];
         func.inputs = [data];
         data = func.apply(data);
@@ -257,7 +257,7 @@ class Convert {
         data = func.apply(data);
 
         func.name = 'apply element';
-        func.options['set/clear'] = 'set';
+        func.options['set'] = true;
         func.options['positions'] = ['first'];
         func.inputs = data;
         data = func.apply(data);
@@ -407,13 +407,152 @@ class Convert {
         func.options['modifiers'] = ['u', 'm', 'g'];
         data = func.apply(data);
 
-        console.log(data.data)
         this.snakecase = data.data[0];
         this.snakecase_stats = func.stats(this.snakecase);
         this.results.push({
             'conversion': 'snakecase',
             'result': this.snakecase,
             'stats': this.snakecase_stats,
+        });
+    }
+    startcasefn = () => {
+
+        let data = new Data();
+        data.data = [this.string]
+        data.dim = 1
+
+        let func = new Func()
+        func.name = 'lowercase';
+        func.inputs = data;
+        data = func.apply(data);
+
+        func.name = 'dim up';
+        func.options['words'] = ['.','!','?',"\n"];
+        func.inputs = data;
+        data = func.apply(data);
+        
+        func.options['words'] = [' ','(',')','[',']','{','}'];
+        func.inputs = data;
+        data = func.apply(data);
+        
+        
+        func.name = 'first letter uppercase';
+        data = func.apply(data);
+        
+        
+        func.name = 'dim down';
+        data = func.apply(data);
+        data = func.apply(data);
+
+        this.startcase = data.data[0];
+        this.startcase_stats = func.stats(this.startcase);
+        this.results.push({
+            'conversion': 'startcase',
+            'result': this.startcase,
+            'stats': this.startcase_stats,
+        });
+    }
+
+    camelcasefn = () => {
+
+        let data = new Data();
+        data.data = [this.string]
+        data.dim = 1
+
+        let func = new Func()
+        func.name = 'lowercase';
+        func.inputs = data;
+        data = func.apply(data);
+
+        func.name = 'dim up';
+        func.options['words'] = ['.','!','?',"\n"];
+        func.inputs = data;
+        data = func.apply(data);
+        
+        func.name = 'apply element';
+        func.options['set'] = false;
+        func.options['positions'] = ['first'];
+        func.options['ignore empty elements'] = true;
+        func.inputs = data;
+        data = func.apply(data);
+
+        func.name = 'dim up';
+        func.options['set'] = true;
+        func.options['words'] = [' ','(',')','[',']','{','}'];
+        func.inputs = data;
+        data = func.apply(data);
+        
+        func.name = 'first letter uppercase';
+        data = func.apply(data);
+        
+        
+        func.name = 'dim down';
+        data = func.apply(data);
+        data = func.apply(data);
+
+        func.name = 'regex';
+        func.options['find'] = '(\\p{L})\\s';
+        func.options['replace'] = '$1';
+        func.options['modifiers'] = ['u'];
+        data = func.apply(data);
+
+        func.name = 'dim up';
+        func.options['words'] = [' ','(',')','[',']','{','}'];
+        func.inputs = data;
+        data = func.apply(data);
+
+        func.name = 'first letter uppercase';
+        data = func.apply(data);        
+        
+        func.name = 'dim down';
+        data = func.apply(data);
+
+        this.camelcase = data.data[0];
+        this.camelcase_stats = func.stats(this.camelcase);
+        this.results.push({
+            'conversion': 'camelcase',
+            'result': this.camelcase,
+            'stats': this.camelcase_stats,
+        });
+    }
+
+    uppercasefn = () => {
+
+        let data = new Data();
+        data.data = [this.string]
+        data.dim = 1
+        let func = new Func()
+        func.name = 'uppercase';
+        func.inputs = data;
+        data = func.apply(data);
+
+
+        this.uppercase = data.data[0];
+        this.uppercase_stats = func.stats(this.uppercase);
+        this.results.push({
+            'conversion': 'uppercase',
+            'result': this.uppercase,
+            'stats': this.uppercase_stats,
+        });
+    }
+
+    lowercasefn = () => {
+
+        let data = new Data();
+        data.data = [this.string]
+        data.dim = 1
+        let func = new Func()
+        func.name = 'lowercase';
+        func.inputs = data;
+        data = func.apply(data);
+
+
+        this.lowercase = data.data[0];
+        this.lowercase_stats = func.stats(this.lowercase);
+        this.results.push({
+            'conversion': 'lowercase',
+            'result': this.lowercase,
+            'stats': this.lowercase_stats,
         });
     }
 
@@ -427,16 +566,24 @@ class Convert {
                 this.dotcasefn();
                 break;
             default:
-                // console.log("titlecasefn")
-                // this.titlecasefn();
+                console.log("titlecasefn")
+                this.titlecasefn();
+                console.log("uppercasefn")
+                this.uppercasefn();
+                console.log("lowercasefn")
+                this.lowercasefn();
+                console.log("startcasefn")
+                this.startcasefn();
+                console.log("camelcasefn")
+                this.camelcasefn();
                 console.log("sentencecasefn")
                 this.sentencecasefn();
-                // console.log("aptcasefn")
-                // this.aptcasefn();
-                // console.log("snakecasefn")
-                // this.snakecasefn();
-                // console.log("dotcasefn")
-                // this.dotcasefn();
+                console.log("aptcasefn")
+                this.aptcasefn();
+                console.log("snakecasefn")
+                this.snakecasefn();
+                console.log("dotcasefn")
+                this.dotcasefn();
         }
         this.converted = true;
         return this.results;

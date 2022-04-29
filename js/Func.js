@@ -3,7 +3,6 @@ class Func {
     inputs = [];
     options = {
         'set': true,
-        'set/clear': 'set',
         'only end-nodes': true,
         'ignore empty entries': true,
         'on after too': true,
@@ -22,7 +21,6 @@ class Func {
         let inputs = (ins ? ins : this.inputs);
         inputs = (Array.isArray(inputs) ? inputs : [inputs]);
         let output = [];
-        const set = !(('set/clear' in this.options) && (this.options['set/clear'] == 'clear'));
         console.log("apply:"+this.name);
         console.log("inputs:"+JSON.stringify(inputs));
         switch (this.name) {
@@ -48,7 +46,6 @@ class Func {
                 return (inputs.length > 1 ? output : output[0]);
             case 'apply element': //inputs is an array of Data
                 output = [];
-                const set = !((this.options['set/clear'] == 'clear'));
                 const first = this.options['positions'].includes('first');
                 const middle = this.options['positions'].includes('middle');
                 const last = this.options['positions'].includes('last');
@@ -57,7 +54,7 @@ class Func {
                     switch (input.dim) {
                         case 0:
                         case 1:
-                            input.apply = set;
+                            input.apply = this.options['set'];
                             output.push(input);
                             break;
                         case 2:
@@ -66,17 +63,17 @@ class Func {
                                     const i = 0;
                                     while ((input.data[i].data[0]) && !input.data[i].data[0]) 
                                         i++;
-                                    input.data[i].apply = set;
+                                    input.data[i].apply = this.options['set'];
                                 } else {
-                                    input.data[0].apply = set;
+                                    input.data[0].apply = this.options['set'];
                                 }
                             if (last)
                                 if (ignore) {
-                                    i = input.data.length - 1;
+                                    const i = input.data.length - 1;
                                     while (i >= 0 && !input.data[i].data[0]) i--;
-                                    if (i >= 0 && (input.data.includes(i))) input.data[i].apply = set;
+                                    if (i >= 0 && (input.data.includes(i))) input.data[i].apply = this.options['set'];
                                 } else {
-                                    input.data[input.data.length - 1].apply = set;
+                                    input.data[input.data.length - 1].apply = this.options['set'];
                                 }
                             if (middle)
                                 if (ignore) {
@@ -85,20 +82,20 @@ class Func {
                                     j = 0;
                                     while (!input.data[i].data[0]) j++;
                                     for (k = j + 1; k < i; k++)
-                                        input.data[k].apply = set;
+                                        input.data[k].apply = this.options['set'];
                                 } else {
                                     for (k = 1; k < input.data.length - 1; k++)
-                                        input.data[k].apply = set;
+                                        input.data[k].apply = this.options['set'];
                                 }
-                            if (this.options['last']) input.data[input.data.length - 1].apply = set;
+                            if (this.options['last']) input.data[input.data.length - 1].apply = this.options['set'];
                             output.push(input);
                             break;
                         default:
                             const data = this.apply(input.data);
                             input.data = Array.isArray(data) ? data : [data];
                             if (!this.options['only end-nodes']) {
-                                if (this.options['first']) input.data[0].apply = set;
-                                if (this.options['last']) input.data[input.data.length - 1].apply = set;
+                                if (this.options['first']) input.data[0].apply = this.options['set'];
+                                if (this.options['last']) input.data[input.data.length - 1].apply = this.options['set'];
                             }
                             output.push(input);
                     }
@@ -111,8 +108,10 @@ class Func {
                     switch (input.dim) {
                         case 0:
                         case 1:
-                            if (input.data[0].length > this.options['larger than']) input.apply = this.options['set'] ? 1 : 0;
-                            if (input.data[0].length < this.options['smaller than']) input.apply = this.options['set'] ? 1 : 0;
+                            if (input.data[0].length > this.options['larger than']) 
+                                input.apply = this.options['set'];
+                            if (input.data[0].length < this.options['smaller than']) 
+                                input.apply = this.options['set'];
                             output.push(input);
                             break;
                         default:
@@ -129,7 +128,7 @@ class Func {
                     switch (input.dim) {
                         case 0:
                         case 1:
-                            if (this.options['words'].includes(input.data[0].toLowerCase())) input.apply = set;
+                            if (this.options['words'].includes(input.data[0].toLowerCase())) input.apply = this.options['set'];
                             output.push(input);
                             break;
                         default:
@@ -150,7 +149,7 @@ class Func {
                     switch (input.dim) {
                         case 0:
                         case 1:
-                            if (input.data[0] in this.options['words']) input.apply = set;
+                            if (input.data[0] in this.options['words']) input.apply = this.options['set'];
                             output.push(input);
                             break;
                         default:
@@ -216,9 +215,9 @@ class Func {
                         case 0:
                         case 1:
                             if (input.data[0].length > this.options['larger than'])
-                                input.apply = this.options['set'] ? 1 : 0;
+                                input.apply = this.options['set'];
                             if (input.data[0].length < this.options['smaller than'])
-                                input.apply = this.options['set'] ? 1 : 0;
+                                input.apply = this.options['set'];
                             output.push(input);
                             break;
                         default:
@@ -237,7 +236,7 @@ class Func {
                         case 0:
                         case 1:
                             if (this.options['words'] in strtolower(input.data[0]))
-                                input.apply = $set;
+                                input.apply = this.options['set'];
                             output.push(input);
                             break;
                         default:
@@ -258,7 +257,7 @@ class Func {
                         case 0:
                         case 1:
                             if (this.options['words'] in input.data[0])
-                                input.apply = $set;
+                                input.apply = this.options['set'];
                             output.push(input);
                             break;
                         default:
@@ -427,71 +426,6 @@ class Func {
 
 }
 
-function str_ireplace(search, replace, subject) {
-    //  discuss at: http://phpjs.org/functions/str_ireplace/
-    // original by: Martijn Wieringa
-    //    input by: penutbutterjelly
-    //    input by: Brett Zamir (http://brett-zamir.me)
-    // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-    // improved by: Jack
-    // bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-    // bugfixed by: Onno Marsman
-    // bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-    // bugfixed by: Philipp Lenssen
-    //   example 1: str_ireplace('l', 'l', 'HeLLo');
-    //   returns 1: 'Hello'
-    //   example 2: str_ireplace('$', 'foo', '$bar');
-    //   returns 2: 'foobar'
-
-    var i, k = '';
-    var searchl = 0;
-    var reg;
-
-    var escapeRegex = function (s) {
-        return s.replace(/([\\\^\$*+\[\]?{}.=!:(|)])/g, '\\$1');
-    };
-
-    search += '';
-    searchl = search.length;
-    if (Object.prototype.toString.call(replace) !== '[object Array]') {
-        replace = [replace];
-        if (Object.prototype.toString.call(search) === '[object Array]') {
-            // If search is an array and replace is a string,
-            // then this replacement string is used for every value of search
-            while (searchl > replace.length) {
-                replace[replace.length] = replace[0];
-            }
-        }
-    }
-
-    if (Object.prototype.toString.call(search) !== '[object Array]') {
-        search = [search];
-    }
-    while (search.length > replace.length) {
-        // If replace has fewer values than search,
-        // then an empty string is used for the rest of replacement values
-        replace[replace.length] = '';
-    }
-
-    if (Object.prototype.toString.call(subject) === '[object Array]') {
-        // If subject is an array, then the search and replace is performed
-        // with every entry of subject , and the return value is an array as well.
-        for (k in subject) {
-            if (subject.hasOwnProperty(k)) {
-                subject[k] = str_ireplace(search, replace, subject[k]);
-            }
-        }
-        return subject;
-    }
-
-    searchl = search.length;
-    for (i = 0; i < searchl; i++) {
-        reg = new RegExp(escapeRegex(search[i]), 'gi');
-        subject = subject.replace(reg, replace[i]);
-    }
-
-    return subject;
-}
 const mb_strtolower = (str) => {
     return str.toLowerCase()
 }
