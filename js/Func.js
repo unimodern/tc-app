@@ -23,6 +23,8 @@ class Func {
         inputs = (Array.isArray(inputs) ? inputs : [inputs]);
         let output = [];
         const set = !(('set/clear' in this.options) && (this.options['set/clear'] == 'clear'));
+        console.log("apply:"+this.name);
+        console.log("inputs:"+JSON.stringify(inputs));
         switch (this.name) {
             case 'output':
                 return inputs;
@@ -32,23 +34,24 @@ class Func {
                     switch (input.dim) {
                         case 0:
                         case 1:
-                            input.apply = this.options['set'] ? 1 : 0;
+                            input.apply = this.options['set'];
                             output.push(input);
                             break;
                         default:
-                            data = this.apply(input.data);
+                            const data = this.apply(input.data);
                             input.data = Array.isArray(data) ? data : [data];
-                            if (!this.options['only end-nodes']) input.apply = this.options['set'] ? 1 : 0;
+                            if (!this.options['only end-nodes']) input.apply = this.options['set'];
                             output.push(input);
                     }
                 });
-                return (count(inputs) > 1 ? output : output[0]);
+                console.log("output:"+JSON.stringify(output));
+                return (inputs.length > 1 ? output : output[0]);
             case 'apply element': //inputs is an array of Data
                 output = [];
-                
-                const first = (('positions' in this.options) && ('first' in this.options['positions'])) ? 1 : 0;
-                const middle = (('positions' in this.options) && ('middle' in this.options['positions'])) ? 1 : 0;
-                const last = ((this.options['positions']) && ('last' in this.options['positions'])) ? 1 : 0;
+                const set = !((this.options['set/clear'] == 'clear'));
+                const first = this.options['positions'].includes('first');
+                const middle = this.options['positions'].includes('middle');
+                const last = this.options['positions'].includes('last');
                 const ignore = this.options['ignore empty entries'];
                 inputs.forEach((input) => {
                     switch (input.dim) {
@@ -60,9 +63,10 @@ class Func {
                         case 2:
                             if (first)
                                 if (ignore) {
-                                    i = 0;
-                                    while ((input.data[i].data[0]) && !input.data[i].data[0]) i++;
-                                    if (i in input.data) input.data[i].apply = set;
+                                    const i = 0;
+                                    while ((input.data[i].data[0]) && !input.data[i].data[0]) 
+                                        i++;
+                                    input.data[i].apply = set;
                                 } else {
                                     input.data[0].apply = set;
                                 }
@@ -70,7 +74,7 @@ class Func {
                                 if (ignore) {
                                     i = input.data.length - 1;
                                     while (i >= 0 && !input.data[i].data[0]) i--;
-                                    if (i >= 0 && (i in input.data)) input.data[i].apply = set;
+                                    if (i >= 0 && (input.data.includes(i))) input.data[i].apply = set;
                                 } else {
                                     input.data[input.data.length - 1].apply = set;
                                 }
@@ -99,6 +103,7 @@ class Func {
                             output.push(input);
                     }
                 });
+                console.log("output:"+JSON.stringify(output));
                 return (inputs.length > 1 ? output : output[0]);
             case 'apply size': //inputs is an array of Data
                 output = [];
@@ -124,7 +129,7 @@ class Func {
                     switch (input.dim) {
                         case 0:
                         case 1:
-                            if (input.data[0].toLowerCase() in this.options['words']) input.apply = set;
+                            if (this.options['words'].includes(input.data[0].toLowerCase())) input.apply = set;
                             output.push(input);
                             break;
                         default:
@@ -135,6 +140,7 @@ class Func {
                             output.push(input);
                     }
                 });
+                console.log("output:"+JSON.stringify(output));
                 return (inputs.length > 1 ? output : output[0]);
 
             case 'apply word case sensitive': //inputs is an array of Data
@@ -376,19 +382,23 @@ class Func {
     }
     apply_ireplace(inputs) {
         inputs = (Array.isArray(inputs) ? inputs : [inputs]);
-        $find = this.options['find'];
-        $replace = this.options['replace'];
-        $output = [];
+        // console.log("ireplace", inputs);
+        const find = this.options['find'];
+        const replace = this.options['replace'];
+        let output = [];
         inputs.forEach((input) => {
             switch (input.dim) {
                 case 0:
                 case 1:
-                    if (input.apply) input.data[0] = str_ireplace($find, $replace, input.data[0]);
+                    if (input.apply) {
+                        // input.data[0] = str_ireplace(find, replace, input.data[0]);
+                        find.forEach( (tag, i) => input.data[0] = input.data[0].replace(new RegExp(tag, "gi"), replace[i]) )
+                    }
                     output.push(input);
                     break;
                 default:
                     if (input.apply) {
-                        $data = this.apply(input.data);
+                        const data = this.apply(input.data);
                         input.data = Array.isArray(data) ? data : [data];
                     }
                     output.push(input);
